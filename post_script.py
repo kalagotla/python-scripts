@@ -17,6 +17,8 @@ Created on Thu Jun 15 10:32:13 2017
 #plt.axes(projection='3d')
 #for i in range(98):
 #    postscript_main("postdata\Z" + str(i+1) + ".rtf", 1e-4)
+
+#xi, yi, ui, vi, wi = postscript_main('../Statistical_distribution/254/merged_data_254.txt', 1e-4, 'linear', 254)
 """
 
 def postscript_main(filename, tol, method, psize):
@@ -56,6 +58,10 @@ def postscript_main(filename, tol, method, psize):
         T, axj, ayj = np.zeros(n), np.zeros(n), np.zeros(n)
         X, Y, wj = np.zeros(n), np.zeros(n), np.zeros(n)
         xj, yj, uj = np.zeros(n), np.zeros(n), np.zeros(n)
+        Av1, Av2, Av3 = np.zeros(n), np.zeros(n), np.zeros(n)
+        Au1, Au2, Au3 = np.zeros(n), np.zeros(n), np.zeros(n)
+        axvj, ayvj, azvj = np.zeros(n), np.zeros(n), np.zeros(n)
+        axuj, ayuj, azuj = np.zeros(n), np.zeros(n), np.zeros(n)
         """Read data into arrays"""
         for i in range(n):
             X1[i] = f[i, 0]
@@ -70,8 +76,14 @@ def postscript_main(filename, tol, method, psize):
             A1[i] = f[i, 9]
             A2[i] = f[i, 10]
             A3[i] = f[i, 11]
-            DT[i] = f[i, 12]
-            KC[i] = f[i, 13]
+            Av1[i] = f[i, 12]
+            Av2[i] = f[i, 13]
+            Av3[i] = f[i, 14]
+            Au1[i] = f[i, 15]
+            Au2[i] = f[i, 16]
+            Au3[i] = f[i, 17]
+            DT[i] = f[i, 18]
+            KC[i] = f[i, 19]
         """Calculate fluid position"""
         Xf1[0] = X1[0]
         Xf2[0] = X2[0]
@@ -91,11 +103,19 @@ def postscript_main(filename, tol, method, psize):
         Xf = 25.4*(2.75*Xf1*1e3-38.265)
         Yf = 25.4*2.75*Xf3*1e3
         Zf = 25.4*(2.75*Xf2*1e3-1.125)
+        
+        """Acceleration from velocity derivatives"""
+        #Cannot do this because you need to do this for each particle separately
+        #It's better to do this in Visual3 Streamlines.f scripts
+#        ax1 = [(t - s)/1e-9 for s, t in zip(V1, V1[1:])]
+#        ay1 = [(t - s)/1e-9 for s, t in zip(V3, V3[1:])]
+#        ax1 = np.append(ax1, A1[n-1])
+#        ay1 = np.append(ay1, A3[n-1]) 
         #X, Y, Z = X1*1e3, X3*1e3, X2*1e3
         #Xf, Yf, Zf = Xf1*1e3, Xf3*1e3, Xf2*1e3
             
             
-        
+        """Use this with individual particles"""
         def plots():
             """Plot streamlines"""
             plt.figure(15)
@@ -131,7 +151,7 @@ def postscript_main(filename, tol, method, psize):
             plt.pause(0.05)
         #ax.scatter(Xf1, Xf2, Xf3, c='b')
         
-        #return V2
+#        return V2
         
             """Velocity plots"""
             plt.figure(19)
@@ -149,6 +169,7 @@ def postscript_main(filename, tol, method, psize):
             plt.xlabel('X(mm)')
             plt.ylabel('W(m/s)')
             plt.pause(0.05)
+            
         
             return
         
@@ -166,6 +187,12 @@ def postscript_main(filename, tol, method, psize):
                      wj[j] = V2[i]
                      axj[j] = A1[i]
                      ayj[j] = A3[i]
+                     axvj[j] = Av1[i]
+                     ayvj[j] = Av3[i]
+                     azvj[j] = Av2[i]
+                     axuj[j] = Au1[i]
+                     ayuj[j] = Au3[i]
+                     azuj[j] = Au2[i]
                      j=j+1
         print('j=', j)
         xj = np.trim_zeros(xj)
@@ -175,6 +202,21 @@ def postscript_main(filename, tol, method, psize):
         wj = np.trim_zeros(wj)
         axj = np.trim_zeros(axj)
         ayj = np.trim_zeros(ayj)
+        axvj = np.trim_zeros(axvj)
+        ayvj = np.trim_zeros(ayvj)
+        azvj = np.trim_zeros(azvj)
+        axuj = np.trim_zeros(axuj)
+        ayuj = np.trim_zeros(ayuj)
+        azuj = np.trim_zeros(azuj)
+        
+        
+        #plt.figure(15)
+        #plt.plot(axj, ax1)
+        #plt.xlabel('axj')
+        #plt.ylabel('ax1')
+        #plt.pause(0.05)
+        
+        #return
         
         #return xj, yj, uj, vj, wj
         
@@ -322,12 +364,76 @@ def postscript_main(filename, tol, method, psize):
         #plt.xlim(18.2, 61.9)
         #plt.ylim(0.257, 17.7)
             plt.show()
+            
+            """X-acceleration contour"""
+            plt.figure(131)
+
+        # Interpolate; there's also method='cubic' for 2-D data such as here
+            zi = scipy.interpolate.griddata((xj, yj), axvj, (xi, yi), method=method, fill_value=1.1)
+
+            plt.imshow(zi, vmin=axvj.min(), vmax=axvj.max(), origin='lower',
+                       extent=[xj.min(), xj.max(), yj.min(), yj.max()], cmap='jet')
+            plt.colorbar()
+            plt.xlabel('X(mm)')
+            plt.ylabel('Y(mm)')
+            plt.pause(0.05)
+        #plt.xlim(18.2, 61.9)
+        #plt.ylim(0.257, 17.7)
+            plt.show()
+            """Y-acceleration contour"""
+            plt.figure(141)
+
+        # Interpolate; there's also method='cubic' for 2-D data such as here
+            zi = scipy.interpolate.griddata((xj, yj), ayvj, (xi, yi), method=method, fill_value=1.1)
+            
+            plt.imshow(zi, vmin=ayvj.min(), vmax=ayvj.max(), origin='lower',
+                       extent=[xj.min(), xj.max(), yj.min(), yj.max()], cmap='jet')
+            plt.colorbar()
+            plt.xlabel('X(mm)')
+            plt.ylabel('Y(mm)')
+            plt.pause(0.05)
+        #plt.xlim(18.2, 61.9)
+        #plt.ylim(0.257, 17.7)
+            plt.show()
+            
+            """X-acceleration contour"""
+            plt.figure(132)
+
+        # Interpolate; there's also method='cubic' for 2-D data such as here
+            zi = scipy.interpolate.griddata((xj, yj), axuj, (xi, yi), method=method, fill_value=1.1)
+
+            plt.imshow(zi, vmin=axuj.min(), vmax=axuj.max(), origin='lower',
+                       extent=[xj.min(), xj.max(), yj.min(), yj.max()], cmap='jet')
+            plt.colorbar()
+            plt.xlabel('X(mm)')
+            plt.ylabel('Y(mm)')
+            plt.pause(0.05)
+        #plt.xlim(18.2, 61.9)
+        #plt.ylim(0.257, 17.7)
+            plt.show()
+            """Y-acceleration contour"""
+            plt.figure(142)
+
+        # Interpolate; there's also method='cubic' for 2-D data such as here
+            zi = scipy.interpolate.griddata((xj, yj), ayuj, (xi, yi), method=method, fill_value=1.1)
+            
+            plt.imshow(zi, vmin=ayuj.min(), vmax=ayuj.max(), origin='lower',
+                       extent=[xj.min(), xj.max(), yj.min(), yj.max()], cmap='jet')
+            plt.colorbar()
+            plt.xlabel('X(mm)')
+            plt.ylabel('Y(mm)')
+            plt.pause(0.05)
+        #plt.xlim(18.2, 61.9)
+        #plt.ylim(0.257, 17.7)
+            plt.show()
+            
             return xi, yi, zi1, zi2, zi3
         
         """Call plots, contours"""
-        #plots()
+#        plots()
         xi, yi, zi1, zi2, zi3 = contours()
         return xi, yi, zi1, zi2, zi3
+        #return
         
         
         
