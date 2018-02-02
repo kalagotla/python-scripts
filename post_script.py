@@ -340,7 +340,7 @@ def postscript_main(filename, tol, method, psize):
         # Interpolate; there's also method='cubic' for 2-D data such as here
             zi = scipy.interpolate.griddata((xj, yj), axj, (xi, yi), method=method, fill_value=1.1)
 
-            plt.imshow(zi, vmin=axj.min(), vmax=axj.max(), origin='lower',
+            plt.imshow(zi, vmin=axuj.min(), vmax=axuj.max(), origin='lower',
                        extent=[xj.min(), xj.max(), yj.min(), yj.max()], cmap='jet')
             plt.colorbar()
             plt.xlabel('X(mm)')
@@ -371,7 +371,7 @@ def postscript_main(filename, tol, method, psize):
         # Interpolate; there's also method='cubic' for 2-D data such as here
             zi = scipy.interpolate.griddata((xj, yj), axvj, (xi, yi), method=method, fill_value=1.1)
 
-            plt.imshow(zi, vmin=axvj.min(), vmax=axvj.max(), origin='lower',
+            plt.imshow(zi, vmin=axuj.min(), vmax=axuj.max(), origin='lower',
                        extent=[xj.min(), xj.max(), yj.min(), yj.max()], cmap='jet')
             plt.colorbar()
             plt.xlabel('X(mm)')
@@ -386,7 +386,7 @@ def postscript_main(filename, tol, method, psize):
         # Interpolate; there's also method='cubic' for 2-D data such as here
             zi = scipy.interpolate.griddata((xj, yj), ayvj, (xi, yi), method=method, fill_value=1.1)
             
-            plt.imshow(zi, vmin=ayvj.min(), vmax=ayvj.max(), origin='lower',
+            plt.imshow(zi, vmin=ayj.min(), vmax=ayj.max(), origin='lower',
                        extent=[xj.min(), xj.max(), yj.min(), yj.max()], cmap='jet')
             plt.colorbar()
             plt.xlabel('X(mm)')
@@ -417,7 +417,7 @@ def postscript_main(filename, tol, method, psize):
         # Interpolate; there's also method='cubic' for 2-D data such as here
             zi = scipy.interpolate.griddata((xj, yj), ayuj, (xi, yi), method=method, fill_value=1.1)
             
-            plt.imshow(zi, vmin=ayuj.min(), vmax=ayuj.max(), origin='lower',
+            plt.imshow(zi, vmin=ayj.min(), vmax=ayj.max(), origin='lower',
                        extent=[xj.min(), xj.max(), yj.min(), yj.max()], cmap='jet')
             plt.colorbar()
             plt.xlabel('X(mm)')
