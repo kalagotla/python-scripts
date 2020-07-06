@@ -19,9 +19,11 @@ Created on Thu Jun 15 10:32:13 2017
 #    postscript_main("postdata\Z" + str(i+1) + ".rtf", 1e-4)
 
 #xi, yi, ui, vi, wi = postscript_main('../Statistical_distribution/254/merged_data_254.txt', 1e-4, 'linear', 254)
+
+postscript_main("../Statistical_distribution/0/0Z100.rtf", 1e-4, 'linear', 0, 'r', True, False)
 """
 
-def postscript_main(filename, tol, method, psize):
+def postscript_main(filename, tol, method, psize, color, logic_f, logic_p):
     import time
     import pdb
     import numpy as np
@@ -31,6 +33,8 @@ def postscript_main(filename, tol, method, psize):
     import scipy.interpolate
     from mpl_toolkits.mplot3d import Axes3D
     import random
+    import Experimental_data as ed
+    import CFD as cfd
     from scipy.spatial import Delaunay
     start_time = time.time()
     def simplecount(filename):
@@ -42,7 +46,7 @@ def postscript_main(filename, tol, method, psize):
     print('n=', n)
     
     
-    def postscript(filename, n, tol):
+    def postscript(filename, n, tol, color, logic_f, logic_p):
 #    f = open(filename,"r")
 #    data = f.readlines()
 #    f = np.genfromtxt(filename, delimiter=' ', dtype=None)
@@ -116,37 +120,55 @@ def postscript_main(filename, tol, method, psize):
             
             
         """Use this with individual particles"""
-        def plots():
+        def plots(color, logic_f, logic_p):
             """Plot streamlines"""
             plt.figure(15)
-            plt.plot(X, Y, 'r')
-            plt.plot(Xf, Yf, 'b')
+            if logic_p:
+                plt.plot(X, Y, color, label=psize)
+                plt.legend()
+            if logic_f:
+                plt.plot(Xf, Yf, 'b', label='liquid')
+                plt.legend()
             #plt.plot(X, V1/603.0, 'g')
-            plt.xlabel('X')
-            plt.ylabel('Y')
+            plt.xlabel('X(mm)')
+            plt.ylabel('Y(mm)')
             plt.pause(0.05)
             plt.figure(16)
-            plt.plot(X, Z, 'r')
-            plt.plot(Xf, Zf, 'b')
+            if logic_p:
+                plt.plot(X, Z, color, label=psize)
+                plt.legend()
+            if logic_f:
+                plt.plot(Xf, Zf, 'b', label='liquid')
+                plt.legend()
             #plt.plot(X, V1/603.0, 'g')
-            plt.xlabel('X')
-            plt.ylabel('Z')
+            plt.xlabel('X(mm)')
+            plt.ylabel('Z(mm)')
             plt.pause(0.05)
             plt.figure(17)
-            plt.plot(Y, Z, 'r')
-            plt.plot(Yf, Zf, 'b')
-            plt.xlabel('Y')
-            plt.ylabel('Z')
+            if logic_p:
+                plt.plot(Y, Z, color, label=psize)
+                plt.legend()
+            if logic_f:
+                plt.plot(Yf, Zf, 'b', label='liquid')
+                plt.legend()
+            plt.xlabel('Y(mm)')
+            plt.ylabel('Z(mm)')
             plt.pause(0.05)
             #return V2
             
             """Plot xyz in 3-D"""
-            plt.figure(18)
-            plt.axes(projection='3d')
-            plt.plot(X, Z, Y, c='r')
-            plt.plot(Xf, Zf, Yf, c='b')
-            plt.xlabel('X')
-            plt.ylabel('Z')
+            fig = plt.figure(18)
+#            plt.axes(projection='3d')
+            ax = fig.gca(projection='3d')
+            if logic_p:
+                ax.plot(X, Z, Y, c=color, label=psize)
+#                ax.legend()
+            if logic_f:
+                ax.plot(Xf, Zf, Yf, c='b', label='liquid')
+                plt.legend()
+            plt.xlabel('X(mm)')
+            plt.ylabel('Z(mm)')
+#            plt.zlabel('Y(mm)')
         #plt.zlabel('Z')
             plt.pause(0.05)
         #ax.scatter(Xf1, Xf2, Xf3, c='b')
@@ -155,21 +177,67 @@ def postscript_main(filename, tol, method, psize):
         
             """Velocity plots"""
             plt.figure(19)
-            plt.plot(X, V1, 'r', X, U1, 'b')
+            if logic_p:
+                plt.plot(X, V1, color, label=psize)
+                plt.legend()
+            if logic_f:
+                plt.plot(X, U1, 'b', label='liquid')
+                plt.legend()
             plt.xlabel('X(mm)')
             plt.ylabel('U(m/s)')
             plt.pause(0.05)
             plt.figure(20)
-            plt.plot(X, V3, 'r', X, U3, 'b')
+            if logic_p:
+                plt.plot(X, V3, color, label=psize)
+                plt.legend()
+            if logic_f:
+                plt.plot(X, U3, 'b', label='liquid')
+                plt.legend()
             plt.xlabel('X(mm)')
             plt.ylabel('V(m/s)')
             plt.pause(0.05)
             plt.figure(21)
-            plt.plot(X, V2, 'r', X, U2, 'b')
+            if logic_p:
+                plt.plot(X, V2, color, label=psize)
+                plt.legend()
+            if logic_f:
+                plt.plot(X, U2, 'b', label='liquid')
+                plt.legend()
             plt.xlabel('X(mm)')
             plt.ylabel('W(m/s)')
             plt.pause(0.05)
             
+#            plt.figure(191)
+#            plt.plot(Y, V1, 'r', Y, U1, 'b')
+#            plt.xlabel('Y(mm)')
+#            plt.ylabel('U(m/s)')
+#            plt.pause(0.05)
+#            plt.figure(201)
+#            plt.plot(Y, V3, 'r', Y, U3, 'b')
+#            plt.xlabel('Y(mm)')
+#            plt.ylabel('V(m/s)')
+#            plt.pause(0.05)
+#            plt.figure(211)
+#            plt.plot(Y, V2, 'r', Y, U2, 'b')
+#            plt.xlabel('Y(mm)')
+#            plt.ylabel('W(m/s)')
+#            plt.pause(0.05)
+#            
+#            plt.figure(192)
+#            plt.plot(Z, V1, 'r', Z, U1, 'b')
+#            plt.xlabel('Z(mm)')
+#            plt.ylabel('U(m/s)')
+#            plt.pause(0.05)
+#            plt.figure(202)
+#            plt.plot(Z, V3, 'r', Z, U3, 'b')
+#            plt.xlabel('Z(mm)')
+#            plt.ylabel('V(m/s)')
+#            plt.pause(0.05)
+#            plt.figure(212)
+#            plt.plot(Z, V2, 'r', Z, U2, 'b')
+#            plt.xlabel('Z(mm)')
+#            plt.ylabel('W(m/s)')
+#            plt.pause(0.05)
         
             return
         
@@ -195,19 +263,20 @@ def postscript_main(filename, tol, method, psize):
                      azuj[j] = Au2[i]
                      j=j+1
         print('j=', j)
-        xj = np.trim_zeros(xj)
-        yj = np.trim_zeros(yj)
-        vj = np.trim_zeros(vj)
-        uj = np.trim_zeros(uj)
-        wj = np.trim_zeros(wj)
-        axj = np.trim_zeros(axj)
-        ayj = np.trim_zeros(ayj)
-        axvj = np.trim_zeros(axvj)
-        ayvj = np.trim_zeros(ayvj)
-        azvj = np.trim_zeros(azvj)
-        axuj = np.trim_zeros(axuj)
-        ayuj = np.trim_zeros(ayuj)
-        azuj = np.trim_zeros(azuj)
+        xj = np.trim_zeros(xj,'b')
+        yj = np.trim_zeros(yj,'b')
+        vj = np.trim_zeros(vj,'b')
+        uj = np.trim_zeros(uj,'b')
+        wj = np.trim_zeros(wj,'b')
+        axj = np.trim_zeros(axj,'b')
+        ayj = np.trim_zeros(ayj,'b')
+        axvj = np.trim_zeros(axvj,'b')
+        ayvj = np.trim_zeros(ayvj,'b')
+        azvj = np.trim_zeros(azvj,'b')
+        axuj = np.trim_zeros(axuj,'b')
+        ayuj = np.trim_zeros(ayuj,'b')
+        azuj = np.trim_zeros(azuj,'b')
+        
         
         
         #plt.figure(15)
@@ -226,9 +295,10 @@ def postscript_main(filename, tol, method, psize):
         
         def contours():
             size = 700
+            """For error metric x=86, y=35"""
             """Plot all contours on same plot, U-velocity"""
             plt.figure(11)
-            xi, yi = np.linspace(18.2, 61.9, size), np.linspace(0.257, 17.7, size)
+            xi, yi = np.linspace(18.191, 61.851, size), np.linspace(0.25681, 17.721, size)
             xi, yi = np.meshgrid(xi, yi)
         
         # Interpolate; there's also method='cubic' for 2-D data such as here
@@ -290,20 +360,119 @@ def postscript_main(filename, tol, method, psize):
             plt.show()
         # Z-direction velocity
             zi3 = scipy.interpolate.griddata((xj, yj), wj/603.0, (xi, yi), method=method, fill_value=1.1)
+                    
+        
+            #return xi, yi, zi1, zi2, zi3
+            """X-acceleration contour"""
+            plt.figure(13)
+
+        # Interpolate; there's also method='cubic' for 2-D data such as here
+            zi4 = scipy.interpolate.griddata((xj, yj), axj, (xi, yi), method=method, fill_value=1.1)
+
+            plt.imshow(zi4, vmin=axuj.min(), vmax=axuj.max(), origin='lower',
+                       extent=[xj.min(), xj.max(), yj.min(), yj.max()], cmap='jet')
+            plt.colorbar()
+            plt.xlabel('X(mm)')
+            plt.ylabel('Y(mm)')
+            plt.pause(0.05)
+        #plt.xlim(18.2, 61.9)
+        #plt.ylim(0.257, 17.7)
+            plt.show()
+            """Y-acceleration contour"""
+            plt.figure(14)
+
+        # Interpolate; there's also method='cubic' for 2-D data such as here
+            zi5 = scipy.interpolate.griddata((xj, yj), ayj, (xi, yi), method=method, fill_value=1.1)
             
+            plt.imshow(zi5, vmin=ayj.min(), vmax=ayj.max(), origin='lower',
+                       extent=[xj.min(), xj.max(), yj.min(), yj.max()], cmap='jet')
+            plt.colorbar()
+            plt.xlabel('X(mm)')
+            plt.ylabel('Y(mm)')
+            plt.pause(0.05)
+        #plt.xlim(18.2, 61.9)
+        #plt.ylim(0.257, 17.7)
+            plt.show()
+            
+            """X-acceleration contour"""
+            plt.figure(131)
+
+        # Interpolate; there's also method='cubic' for 2-D data such as here
+            zi6 = scipy.interpolate.griddata((xj, yj), axvj, (xi, yi), method=method, fill_value=1.1)
+
+            plt.imshow(zi6, vmin=axuj.min(), vmax=axuj.max(), origin='lower',
+                       extent=[xj.min(), xj.max(), yj.min(), yj.max()], cmap='jet')
+            plt.colorbar()
+            plt.xlabel('X(mm)')
+            plt.ylabel('Y(mm)')
+            plt.pause(0.05)
+        #plt.xlim(18.2, 61.9)
+        #plt.ylim(0.257, 17.7)
+            plt.show()
+            """Y-acceleration contour"""
+            plt.figure(141)
+
+        # Interpolate; there's also method='cubic' for 2-D data such as here
+            zi7 = scipy.interpolate.griddata((xj, yj), ayvj, (xi, yi), method=method, fill_value=1.1)
+            
+            plt.imshow(zi7, vmin=ayj.min(), vmax=ayj.max(), origin='lower',
+                       extent=[xj.min(), xj.max(), yj.min(), yj.max()], cmap='jet')
+            plt.colorbar()
+            plt.xlabel('X(mm)')
+            plt.ylabel('Y(mm)')
+            plt.pause(0.05)
+        #plt.xlim(18.2, 61.9)
+        #plt.ylim(0.257, 17.7)
+            plt.show()
+            
+            """X-acceleration contour"""
+            plt.figure(132)
+
+        # Interpolate; there's also method='cubic' for 2-D data such as here
+            zi8 = scipy.interpolate.griddata((xj, yj), axuj, (xi, yi), method=method, fill_value=1.1)
+
+            plt.imshow(zi8, vmin=axuj.min(), vmax=axuj.max(), origin='lower',
+                       extent=[xj.min(), xj.max(), yj.min(), yj.max()], cmap='jet')
+            plt.colorbar()
+            plt.xlabel('X(mm)')
+            plt.ylabel('Y(mm)')
+            plt.pause(0.05)
+        #plt.xlim(18.2, 61.9)
+        #plt.ylim(0.257, 17.7)
+            plt.show()
+            """Y-acceleration contour"""
+            plt.figure(142)
+
+        # Interpolate; there's also method='cubic' for 2-D data such as here
+            zi9 = scipy.interpolate.griddata((xj, yj), ayuj, (xi, yi), method=method, fill_value=1.1)
+            
+            plt.imshow(zi9, vmin=ayj.min(), vmax=ayj.max(), origin='lower',
+                       extent=[xj.min(), xj.max(), yj.min(), yj.max()], cmap='jet')
+            plt.colorbar()
+            plt.xlabel('X(mm)')
+            plt.ylabel('Y(mm)')
+            plt.pause(0.05)
+        #plt.xlim(18.2, 61.9)
+        #plt.ylim(0.257, 17.7)
+            plt.show()
+            """Experimental data; Works only for 700. Modify .py file to work for different sizes"""
+            xe, ye, zi10, zi11 = ed.experimental_data("M275_theta775_strm.grid.dat", "M275_theta775_strm.req.dat", 35, 86, 1)
+            """Experimental data; Works only for 700. Modify .py file to work for different sizes"""
+            xc, yc, zi12, zi13 = cfd.CFD("CFD_Grid_z0.txt", "CFD_Flow_z0.txt", 1e-4)
+#            print(zi10[500,500])
             """Write files for tecplot (Plot3D format)"""
             kc = 0
         #first number: dimensions, 2nd represents imax, jmax, kmax
         #first number: No. of variables, 2nd: imax, jmax, kmax, Max_Variable_no.
             f = np.zeros(size*size*3+3)
-            g = np.zeros(size*size*3+4)
+            g = np.zeros(size*size*13+4)
             f[kc] = int(size)
             g[kc] = int(size)
             f[kc+1] = int(size)
             g[kc+1]  = int(size)
             f[kc+2] = 1
             g[kc+2] = 1
-            g[kc+3] = 3
+            g[kc+3] = 13
             kc = 3
             for i in range(size):
                 for j in range(size):
@@ -318,7 +487,7 @@ def postscript_main(filename, tol, method, psize):
                     f[kc] = 0
                     kc = kc+1
             kc = 4
-            for m in range(3):
+            for m in range(13):
                 for i in range(size):
                     for j in range(size):
                         if m==0:
@@ -327,113 +496,39 @@ def postscript_main(filename, tol, method, psize):
                             g[kc] = zi2[i, j]
                         if m==2:
                             g[kc] = zi3[i, j]
+                        if m==3:
+                            g[kc] = zi4[i, j]
+                        if m==4:
+                            g[kc] = zi5[i, j]
+                        if m==5:
+                            g[kc] = zi6[i, j]
+                        if m==6:
+                            g[kc] = zi7[i, j]
+                        if m==7:
+                            g[kc] = zi8[i, j]
+                        if m==8:
+                            g[kc] = zi9[i, j]
+                        if m==9:
+                            g[kc] = zi10[i, j]
+                        if m==10:
+                            g[kc] = zi11[i, j]
+                        if m==11:
+                            g[kc] = zi12[i, j]
+                        if m==12:
+                            g[kc] = zi13[i, j]
                         kc = kc+1
             #print(f, g)
             np.savetxt('grid_data_'+ str(psize) +'.txt', f)
             np.savetxt('flow_data_'+ str(psize) +'.txt', g)
-                    
-        
-            #return xi, yi, zi1, zi2, zi3
-            """X-acceleration contour"""
-            plt.figure(13)
-
-        # Interpolate; there's also method='cubic' for 2-D data such as here
-            zi = scipy.interpolate.griddata((xj, yj), axj, (xi, yi), method=method, fill_value=1.1)
-
-            plt.imshow(zi, vmin=axuj.min(), vmax=axuj.max(), origin='lower',
-                       extent=[xj.min(), xj.max(), yj.min(), yj.max()], cmap='jet')
-            plt.colorbar()
-            plt.xlabel('X(mm)')
-            plt.ylabel('Y(mm)')
-            plt.pause(0.05)
-        #plt.xlim(18.2, 61.9)
-        #plt.ylim(0.257, 17.7)
-            plt.show()
-            """Y-acceleration contour"""
-            plt.figure(14)
-
-        # Interpolate; there's also method='cubic' for 2-D data such as here
-            zi = scipy.interpolate.griddata((xj, yj), ayj, (xi, yi), method=method, fill_value=1.1)
             
-            plt.imshow(zi, vmin=ayj.min(), vmax=ayj.max(), origin='lower',
-                       extent=[xj.min(), xj.max(), yj.min(), yj.max()], cmap='jet')
-            plt.colorbar()
-            plt.xlabel('X(mm)')
-            plt.ylabel('Y(mm)')
-            plt.pause(0.05)
-        #plt.xlim(18.2, 61.9)
-        #plt.ylim(0.257, 17.7)
-            plt.show()
-            
-            """X-acceleration contour"""
-            plt.figure(131)
-
-        # Interpolate; there's also method='cubic' for 2-D data such as here
-            zi = scipy.interpolate.griddata((xj, yj), axvj, (xi, yi), method=method, fill_value=1.1)
-
-            plt.imshow(zi, vmin=axuj.min(), vmax=axuj.max(), origin='lower',
-                       extent=[xj.min(), xj.max(), yj.min(), yj.max()], cmap='jet')
-            plt.colorbar()
-            plt.xlabel('X(mm)')
-            plt.ylabel('Y(mm)')
-            plt.pause(0.05)
-        #plt.xlim(18.2, 61.9)
-        #plt.ylim(0.257, 17.7)
-            plt.show()
-            """Y-acceleration contour"""
-            plt.figure(141)
-
-        # Interpolate; there's also method='cubic' for 2-D data such as here
-            zi = scipy.interpolate.griddata((xj, yj), ayvj, (xi, yi), method=method, fill_value=1.1)
-            
-            plt.imshow(zi, vmin=ayj.min(), vmax=ayj.max(), origin='lower',
-                       extent=[xj.min(), xj.max(), yj.min(), yj.max()], cmap='jet')
-            plt.colorbar()
-            plt.xlabel('X(mm)')
-            plt.ylabel('Y(mm)')
-            plt.pause(0.05)
-        #plt.xlim(18.2, 61.9)
-        #plt.ylim(0.257, 17.7)
-            plt.show()
-            
-            """X-acceleration contour"""
-            plt.figure(132)
-
-        # Interpolate; there's also method='cubic' for 2-D data such as here
-            zi = scipy.interpolate.griddata((xj, yj), axuj, (xi, yi), method=method, fill_value=1.1)
-
-            plt.imshow(zi, vmin=axuj.min(), vmax=axuj.max(), origin='lower',
-                       extent=[xj.min(), xj.max(), yj.min(), yj.max()], cmap='jet')
-            plt.colorbar()
-            plt.xlabel('X(mm)')
-            plt.ylabel('Y(mm)')
-            plt.pause(0.05)
-        #plt.xlim(18.2, 61.9)
-        #plt.ylim(0.257, 17.7)
-            plt.show()
-            """Y-acceleration contour"""
-            plt.figure(142)
-
-        # Interpolate; there's also method='cubic' for 2-D data such as here
-            zi = scipy.interpolate.griddata((xj, yj), ayuj, (xi, yi), method=method, fill_value=1.1)
-            
-            plt.imshow(zi, vmin=ayj.min(), vmax=ayj.max(), origin='lower',
-                       extent=[xj.min(), xj.max(), yj.min(), yj.max()], cmap='jet')
-            plt.colorbar()
-            plt.xlabel('X(mm)')
-            plt.ylabel('Y(mm)')
-            plt.pause(0.05)
-        #plt.xlim(18.2, 61.9)
-        #plt.ylim(0.257, 17.7)
-            plt.show()
             
             return xi, yi, zi1, zi2, zi3
         
         """Call plots, contours"""
-#        plots()
-        xi, yi, zi1, zi2, zi3 = contours()
-        return xi, yi, zi1, zi2, zi3
-        #return
+        plots(color, logic_f, logic_p)
+#        xi, yi, zi1, zi2, zi3 = contours()
+#        return xi, yi, zi1, zi2, zi3
+        return
         
         
         
@@ -506,14 +601,14 @@ def postscript_main(filename, tol, method, psize):
         print('U_error=', U_error, '\nV_error=', V_error)
         
     """Call functions for processing"""
-    xi, yi, zi1, zi2, zi3 = postscript(filename, n, tol)
+#    xi, yi, zi1, zi2, zi3 = postscript(filename, n, tol, color, logic_f, logic_p)
     #x, y, u, v, w = postscript(filename, n, tol)
     #V1 = postscript(filename, n, tol)
-    #postscript(filename, n, tol)
+    postscript(filename, n, tol,color, logic_f, logic_p)
     end_time = time.time()
     print('Elapsed_time=', end_time-start_time)
-    #return
-    return xi, yi, zi1, zi2, zi3
+    return
+#    return xi, yi, zi1, zi2, zi3
     #return x, y, u, v, w
 #    cp = plt.contour(X, Z, Vz)
 #    plt.clabel(cp, inline=True, fontsize=10)
